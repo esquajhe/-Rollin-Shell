@@ -17,14 +17,13 @@ public class PlayerMovement : MonoBehaviour
 
     const int MAX_NB_JUMP = 2;
     int current_nb_jump = 0;
+    public float GroundedDistance = 0.5f;
 
     bool IsGrounded()
     {
-        float GroundedDistance = 0.5f;
-        rb = GetComponent<Rigidbody>();
         if (rb.velocity.y == 0)
         {
-            return Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, GroundedDistance);
+            return Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, GroundedDistance, GroundMask);
         }
         return false;
     }
@@ -49,6 +48,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetButtonDown("Jump"))
             jump = true;
+        
     }
 
     void FixedUpdate()
@@ -61,10 +61,16 @@ public class PlayerMovement : MonoBehaviour
 
         if (jump && current_nb_jump < MAX_NB_JUMP)
         {
+            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.y);
             rb.AddForce(Vector3.up * JumpForce, ForceMode.Impulse);
             jump = false;
             current_nb_jump++;
         }
-        else if (current_nb_jump == MAX_NB_JUMP){ jump = false; }
+        else if (current_nb_jump == MAX_NB_JUMP) { jump = false; }
+    }
+    
+    void OnDrawGizmos()
+    {
+        Gizmos.DrawLine(transform.position, Vector3.down * GroundedDistance);
     }
 }
